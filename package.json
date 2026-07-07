@@ -1,0 +1,54 @@
+{
+  "name": "judge_system",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "dotenv": "^17.4.2",
+      "zod": "^4.4.3",
+      "typescript": "^6.0.3",
+      "@types/bun": "^1.3.14",
+      "better-auth": "^1.6.22",
+      "vitest": "4.1.8",
+      "@vitest/ui": "4.1.8",
+      "@vitest/coverage-v8": "4.1.8",
+      "jsdom": "^29.1.1",
+      "@prisma/client": "^7.8.0"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @judge_system/db db:push",
+    "db:studio": "turbo -F @judge_system/db db:studio",
+    "db:generate": "turbo -F @judge_system/db db:generate",
+    "db:migrate": "turbo -F @judge_system/db db:migrate",
+    "db:start": "turbo -F @judge_system/db db:start",
+    "db:watch": "turbo -F @judge_system/db db:watch",
+    "db:stop": "turbo -F @judge_system/db db:stop",
+    "db:down": "turbo -F @judge_system/db db:down",
+    "test": "bun run --filter web test && bun run --filter server test"
+  },
+  "dependencies": {
+    "@judge_system/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@judge_system/config": "workspace:*",
+    "@types/bun": "catalog:",
+    "turbo": "^2.10.0",
+    "typescript": "catalog:"
+  },
+  "overrides": {
+    "kysely": "0.28.17"
+  },
+  "packageManager": "bun@1.2.18"
+}

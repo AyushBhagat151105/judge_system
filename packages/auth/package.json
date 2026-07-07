@@ -1,0 +1,29 @@
+{
+  "name": "@judge_system/auth",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-auth/prisma-adapter": "^1.6.22",
+    "@judge_system/db": "workspace:*",
+    "@judge_system/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@judge_system/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
