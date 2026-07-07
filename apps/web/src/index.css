@@ -75,6 +75,12 @@
 
 @theme inline {
   --font-mono: "JetBrains Mono Variable", monospace;
+  --color-neo-yellow: #FACC15;
+  --color-neo-mint: #4ADE80;
+  --color-neo-orange: #FB923C;
+  --color-neo-pink: #F472B6;
+  --color-neo-cyan: #22D3EE;
+  --color-neo-violet: #A78BFA;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -125,4 +131,52 @@
   html {
     @apply font-mono;
   }
+}
+
+/* Neobrutalist Custom Utilities */
+.border-neobrutalist {
+  border: 3px solid black !important;
+}
+
+.shadow-neobrutalist {
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1) !important;
+}
+
+.hover-neobrutalist {
+  transition: all 0.1s ease-in-out !important;
+  transform: translate(0, 0) !important;
+}
+.hover-neobrutalist:hover {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,1) !important;
+}
+.hover-neobrutalist:active {
+  transform: translate(4px, 4px) !important;
+  box-shadow: 0px 0px 0px 0px rgba(0,0,0,1) !important;
+}
+
+/* High-Contrast Neobrutalist Colors */
+.bg-neo-yellow {
+  background-color: #FACC15 !important;
+  color: black !important;
+}
+.bg-neo-mint {
+  background-color: #4ADE80 !important;
+  color: black !important;
+}
+.bg-neo-orange {
+  background-color: #FB923C !important;
+  color: black !important;
+}
+.bg-neo-pink {
+  background-color: #F472B6 !important;
+  color: black !important;
+}
+.bg-neo-cyan {
+  background-color: #22D3EE !important;
+  color: black !important;
+}
+.bg-neo-violet {
+  background-color: #A78BFA !important;
+  color: black !important;
 }
