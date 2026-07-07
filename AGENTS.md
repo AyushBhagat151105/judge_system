@@ -14,8 +14,10 @@ This file provides context about the project for AI assistants.
 ### Frontend
 
 - Framework: tanstack-router
+- Query: tanstack-query
 - CSS: tailwind
 - UI Library: shadcn-ui
+- Forms: react-hook-form
 - State: zustand
 
 ### Backend

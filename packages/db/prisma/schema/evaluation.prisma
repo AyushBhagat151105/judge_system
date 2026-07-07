@@ -1,0 +1,14 @@
+model Evaluation {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress  String?
+  prompt     String
+  report     Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([ipAddress])
+  @@map("evaluation")
+}

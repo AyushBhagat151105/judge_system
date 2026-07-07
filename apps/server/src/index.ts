@@ -27,7 +27,6 @@ app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });
 
-// Global Error Handler Middleware
 app.use(globalErrorHandler);
 
 app.listen(3000, () => {

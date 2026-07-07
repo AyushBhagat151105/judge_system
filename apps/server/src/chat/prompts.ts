@@ -50,3 +50,35 @@ Focus your assessment on:
 You have access to the 'searchInternet' tool. You MUST use it to search for direct/indirect competitors, active competitor URLs, and compliance requirements in the user's market space. Ensure you list all search queries you performed in your final report response.
 
 Provide a highly structured risk matrix, legal compliance checklist, and actionable mitigation strategies.`;
+
+export function getSynthesisPrompt(techResult: string, marketResult: string, riskResult: string): string {
+    return `
+Here are the reports from your specialized analysts:
+
+=== PRODUCT & TECHNICAL FEASIBILITY REPORT ===
+${techResult}
+
+=== MARKET & FINANCIAL VIABILITY REPORT ===
+${marketResult}
+
+=== RISK & COMPETITIVE INTELLIGENCE REPORT ===
+${riskResult}
+
+You MUST synthesize these findings and compile your final investment evaluation report. 
+Your final response MUST be a complete JSON object conforming to the required schema. Ensure you generate all of the following keys:
+1. "businessName" - Name of the business/concept.
+2. "tagline" - Catchy description.
+3. "executiveSummary" - Detailed VC synthesis in markdown format.
+4. "innovationRating" - Object with "score" and "rationale".
+5. "technicalFeasibility" - Object with "score", "summary", "challenges", "recommendedStack", "timeToMVP", "searchQueriesPerformed", and "packageRecommendations" (each recommendation must have "name" and "purpose").
+6. "marketViability" - Object with "score", "summary", "opportunities", "targetAudience", "monetizationModels", "financialProjections" (with "fundingNeeds" and "breakEvenTime"), "searchQueriesPerformed", and "marketTrends".
+7. "riskAssessment" - Object with "score", "summary", "mitigationStrategies", "competitorAnalysis", "regulatoryConcerns", "searchQueriesPerformed", and "competitorList" (each competitor must have "name", "url", and "moat").
+8. "swotAnalysis" - Object with "strengths", "weaknesses", "opportunities", and "threats" arrays.
+9. "prosAndCons" - Object with "pros" and "cons" arrays.
+10. "finalVerdict" - Must be one of: "APPROVED", "NEEDS_REVISION", "REJECTED".
+11. "confidenceScore" - Confidence score out of 10.
+12. "actionableRecommendations" - Array of actionable roadmap steps.
+
+Do NOT omit any of these keys. The JSON object must be fully completed and closed properly.
+`;
+}

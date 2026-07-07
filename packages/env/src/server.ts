@@ -10,6 +10,8 @@ export const env = createEnv({
     CORS_ORIGIN: z.url(),
     JUDGE_SYSTEM_API_KEY: z.string().min(1),
     TAVILY_API_KEY: z.string().min(1),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   },
   runtimeEnv: process.env,

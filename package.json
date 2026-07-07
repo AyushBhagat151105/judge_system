@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@judge_system/env": "workspace:*",
+    "axios": "^1.18.1",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },

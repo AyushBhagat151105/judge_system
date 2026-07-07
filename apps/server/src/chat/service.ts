@@ -1,9 +1,10 @@
 import { judgeModelAdapter } from "@/client/adapters";
-import { chat } from "@tanstack/ai";
+import { chat, EventType } from "@tanstack/ai";
 import { analyzeTechnicalFeasibility, analyzeMarketViability, analyzeRiskAndCompetitors } from "@/tools";
 import logger from "@/lib/logger";
 import { EvaluationReportSchema } from "./schema";
-import { LEAD_JUDGE_SYNTHESIS_PROMPT } from "./prompts";
+import { LEAD_JUDGE_SYNTHESIS_PROMPT, getSynthesisPrompt } from "./prompts";
+import prisma from "@judge_system/db";
 
 process.on("uncaughtException", (error) => {
     logger.error(`[Process] Uncaught Exception: ${error.message}`, { stack: error.stack });
@@ -13,7 +14,7 @@ process.on("unhandledRejection", (reason: any) => {
     logger.error(`[Process] Unhandled Rejection: ${reason?.message || reason}`, { stack: reason?.stack });
 });
 
-export async function* createChatService(messages: any[]) {
+export async function* createChatService(messages: any[], userId?: string | null, clientIp?: string) {
     logger.info(`[Lead Judge] Initializing coordinator with ${messages.length} messages`);
     
     // Normalize messages to be robust against strings and legacy/simplified formats
@@ -47,36 +48,7 @@ export async function* createChatService(messages: any[]) {
     ]);
 
     logger.info("[Lead Judge] Analyst reports successfully retrieved. Compiling prompt...");
-
-    const synthesisPrompt = `
-Here are the reports from your specialized analysts:
-
-=== PRODUCT & TECHNICAL FEASIBILITY REPORT ===
-${techResult.response}
-
-=== MARKET & FINANCIAL VIABILITY REPORT ===
-${marketResult.response}
-
-=== RISK & COMPETITIVE INTELLIGENCE REPORT ===
-${riskResult.response}
-
-You MUST synthesize these findings and compile your final investment evaluation report. 
-Your final response MUST be a complete JSON object conforming to the required schema. Ensure you generate all of the following keys:
-1. "businessName" - Name of the business/concept.
-2. "tagline" - Catchy description.
-3. "executiveSummary" - Detailed VC synthesis in markdown format.
-4. "innovationRating" - Object with "score" and "rationale".
-5. "technicalFeasibility" - Object with "score", "summary", "challenges", "recommendedStack", "timeToMVP", "searchQueriesPerformed", and "packageRecommendations" (each recommendation must have "name" and "purpose").
-6. "marketViability" - Object with "score", "summary", "opportunities", "targetAudience", "monetizationModels", "financialProjections" (with "fundingNeeds" and "breakEvenTime"), "searchQueriesPerformed", and "marketTrends".
-7. "riskAssessment" - Object with "score", "summary", "mitigationStrategies", "competitorAnalysis", "regulatoryConcerns", "searchQueriesPerformed", and "competitorList" (each competitor must have "name", "url", and "moat").
-8. "swotAnalysis" - Object with "strengths", "weaknesses", "opportunities", and "threats" arrays.
-9. "prosAndCons" - Object with "pros" and "cons" arrays.
-10. "finalVerdict" - Must be one of: "APPROVED", "NEEDS_REVISION", "REJECTED".
-11. "confidenceScore" - Confidence score out of 10.
-12. "actionableRecommendations" - Array of actionable roadmap steps.
-
-Do NOT omit any of these keys. The JSON object must be fully completed and closed properly.
-`;
+    const synthesisPrompt = getSynthesisPrompt(techResult.response, marketResult.response, riskResult.response);
 
     logger.info("[Lead Judge] Executing coordinator synthesis with outputSchema...");
 
@@ -94,12 +66,33 @@ Do NOT omit any of these keys. The JSON object must be fully completed and close
         stream: true
     });
 
+    let completedObject: any = null;
     for await (const chunk of stream) {
-        if (chunk.type === "TEXT_MESSAGE_CONTENT") {
+        if (chunk.type === EventType.CUSTOM && chunk.name === 'structured-output.complete') {
+            completedObject = chunk.value.object;
+        }
+        if (chunk.type === EventType.TEXT_MESSAGE_CONTENT) {
             const { content, ...rest } = chunk as any;
             yield rest;
         } else {
             yield chunk;
+        }
+    }
+
+    if (completedObject) {
+        try {
+            logger.info(`[Lead Judge] Saving completed evaluation report to database...`);
+            await prisma.evaluation.create({
+                data: {
+                    userId: userId || null,
+                    ipAddress: clientIp || null,
+                    prompt,
+                    report: completedObject
+                }
+            });
+            logger.info(`[Lead Judge] Report saved successfully.`);
+        } catch (dbError: any) {
+            logger.error(`[Lead Judge] Failed to save report to database: ${dbError.message}`, { stack: dbError.stack });
         }
     }
 
