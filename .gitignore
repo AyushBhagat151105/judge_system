@@ -11,7 +11,8 @@ build
 # Environment variables
 .env
 .env*.local
-
+.agents
+skills-lock.json
 # IDEs and editors
 .vscode/*
 !.vscode/settings.json

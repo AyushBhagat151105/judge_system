@@ -3,6 +3,8 @@ import { env } from "@judge_system/env/server";
 import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import express from "express";
+import chatRouter from "./chat/route";
+import globalErrorHandler from "./lib/errorHandler";
 
 const app = express();
 
@@ -19,9 +21,14 @@ app.all("/api/auth{/*path}", toNodeHandler(auth));
 
 app.use(express.json());
 
+app.use("/api/v1/chat", chatRouter);
+
 app.get("/", (_req, res) => {
   res.status(200).send("OK");
 });
+
+// Global Error Handler Middleware
+app.use(globalErrorHandler);
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
