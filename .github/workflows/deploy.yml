@@ -83,9 +83,6 @@ jobs:
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            if [ ! -d "/root/judge_system" ]; then
-              git clone git@github.com:AyushBhagat151105/judge_system.git /root/judge_system
-            fi
             cd /root/judge_system
             # Ensure the remote URL is set to SSH to use Deploy Keys
             git remote set-url origin git@github.com:AyushBhagat151105/judge_system.git
