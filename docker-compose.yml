@@ -7,7 +7,7 @@ services:
       dockerfile: ./apps/web/Dockerfile
     container_name: judge_system-web
     ports:
-      - "3000:3000"
+      - "3003:3000"
     env_file:
       - .env
     restart: always
@@ -23,7 +23,7 @@ services:
       dockerfile: ./apps/server/Dockerfile
     container_name: judge_system-server
     ports:
-      - "3002:3000"
+      - "3004:3000"
     env_file:
       - .env
     restart: always

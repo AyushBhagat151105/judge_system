@@ -83,7 +83,7 @@ jobs:
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /root/portfolio
+            cd /root/judge_system
             # Ensure the remote URL is set to SSH to use Deploy Keys
             git remote set-url origin git@github.com:AyushBhagat151105/judge_system.git
             # Pull using SSH and bypass host key check to prevent hanging prompts
