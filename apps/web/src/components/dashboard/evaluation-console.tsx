@@ -10,11 +10,40 @@ interface EvaluationConsoleProps {
 
 export function EvaluationConsole({ status, onSubmit, onAbort }: EvaluationConsoleProps) {
   const [promptInput, setPromptInput] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!promptInput.trim()) return;
-    onSubmit(promptInput);
+    const cleanPrompt = promptInput.trim();
+    if (!cleanPrompt) {
+      setErrorMsg("Please describe your startup concept.");
+      return;
+    }
+    if (cleanPrompt.length < 15) {
+      setErrorMsg("Describe your startup concept in more detail (minimum 15 characters).");
+      return;
+    }
+
+    const injectionPatterns = [
+      /ignore\s+(?:previous|all|these|the)\s+(?:instructions|directives|rules|guidelines|prompts)/i,
+      /bypass\s+(?:security|rules|filters|limitations)/i,
+      /jailbreak/i,
+      /you\s+must\s+now\s+act\s+as/i,
+      /forget\s+about\s+(?:the\s+)?guidelines/i,
+      /do\s+not\s+follow\s+any\s+instructions/i,
+      /new\s+instructions\s*:/i,
+      /assistant\s+(?:must|should)\s+ignore/i,
+      /override\s+system/i,
+      /act\s+as\s+a\s+chatbot/i
+    ];
+
+    if (injectionPatterns.some(pattern => pattern.test(cleanPrompt))) {
+      setErrorMsg("Security Alert: System override or prompt injection attempt detected.");
+      return;
+    }
+
+    setErrorMsg(null);
+    onSubmit(cleanPrompt);
   };
 
   return (
@@ -23,18 +52,28 @@ export function EvaluationConsole({ status, onSubmit, onAbort }: EvaluationConso
         ⚖️ Startup Evaluator Console
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-black uppercase mb-1 text-black dark:text-zinc-300">
+        <div className="space-y-2">
+          <label className="block text-xs font-black uppercase text-black dark:text-zinc-300">
             Business Prompt / Concept
           </label>
           <textarea
             value={promptInput}
-            onChange={(e) => setPromptInput(e.target.value)}
+            onChange={(e) => {
+              setPromptInput(e.target.value);
+              if (e.target.value.trim().length >= 15) {
+                setErrorMsg(null);
+              }
+            }}
             placeholder="Describe your startup concept, market model, competitive advantage..."
             rows={5}
             disabled={status === "analyzing" || status === "synthesizing"}
             className="w-full border-neobrutalist p-3 rounded-none bg-amber-50/30 dark:bg-zinc-800/30 text-xs font-bold focus:outline-none focus:bg-white dark:focus:bg-zinc-800 resize-none text-black dark:text-white disabled:opacity-50"
           />
+          {errorMsg && (
+            <p className="text-red-600 dark:text-red-400 font-black text-[10px] uppercase tracking-wide">
+              ⚠️ {errorMsg}
+            </p>
+          )}
         </div>
 
         {status === "analyzing" || status === "synthesizing" ? (

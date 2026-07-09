@@ -38,7 +38,21 @@ function RouteComponent() {
   } = useEvaluationStream();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [activeMobileTab, setActiveMobileTab] = useState<"console" | "history" | "report">("console");
 
+  // Auto-switch tabs to show status logs when evaluation begins
+  useEffect(() => {
+    if (status === "analyzing" || status === "synthesizing") {
+      setActiveMobileTab("console");
+    }
+  }, [status]);
+
+  // Auto-switch tabs to show report when evaluation completes or details are loaded
+  useEffect(() => {
+    if (status === "completed" || selectedEvaluation) {
+      setActiveMobileTab("report");
+    }
+  }, [status, selectedEvaluation]);
 
   const { data: historyData, isLoading: historyLoading } = useEvaluationHistory(session);
 
@@ -82,39 +96,80 @@ function RouteComponent() {
   const displayReport = selectedEvaluation?.report || (currentReport as EvaluationReport);
 
   return (
-    <div className="bg-amber-50 dark:bg-zinc-950 min-h-full p-6 text-black dark:text-white relative transition-colors duration-200">
+    <div className="bg-amber-50 dark:bg-zinc-950 min-h-full p-4 md:p-6 text-black dark:text-white relative transition-colors duration-200">
       {/* Paywall Modal overlay if limits hit */}
       <PaywallModal />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Prompt input, Logs & History */}
-        <div className="lg:col-span-4 space-y-6">
-          <EvaluationConsole 
-            status={status} 
-            onSubmit={handleStartSubmit} 
-            onAbort={abort} 
-          />
+      {/* Mobile Tab Switcher: Only visible below lg */}
+      <div className="lg:hidden grid grid-cols-3 border-4 border-black mb-6 bg-white dark:bg-zinc-900 shadow-neobrutalist shrink-0">
+        <button
+          onClick={() => setActiveMobileTab("console")}
+          className={`py-3 text-xs font-black uppercase border-r-4 border-black cursor-pointer transition-colors ${
+            activeMobileTab === "console"
+              ? "bg-neo-yellow text-black"
+              : "bg-white dark:bg-zinc-900 text-black dark:text-white"
+          }`}
+        >
+          ⚖️ Console
+        </button>
+        <button
+          onClick={() => setActiveMobileTab("history")}
+          className={`py-3 text-xs font-black uppercase border-r-4 border-black cursor-pointer transition-colors ${
+            activeMobileTab === "history"
+              ? "bg-neo-cyan text-black"
+              : "bg-white dark:bg-zinc-900 text-black dark:text-white"
+          }`}
+        >
+          📚 History
+        </button>
+        <button
+          onClick={() => setActiveMobileTab("report")}
+          className={`py-3 text-xs font-black uppercase cursor-pointer transition-colors ${
+            activeMobileTab === "report"
+              ? "bg-neo-pink text-black"
+              : "bg-white dark:bg-zinc-900 text-black dark:text-white"
+          }`}
+        >
+          👑 Report
+        </button>
+      </div>
 
-          <LogTerminal 
-            status={status} 
-            logs={logs} 
-            streamError={streamError} 
-          />
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        {/* Left Column: Prompt input, Logs & History - visible if not on report tab on mobile */}
+        <div className={`lg:col-span-4 space-y-6 ${activeMobileTab !== "report" ? "" : "hidden lg:block"}`}>
+          {/* Console / Log view on mobile - activeMobileTab === "console" */}
+          <div className={activeMobileTab === "console" ? "space-y-6" : "hidden lg:block lg:space-y-6"}>
+            <EvaluationConsole 
+              status={status} 
+              onSubmit={handleStartSubmit} 
+              onAbort={abort} 
+            />
 
-          <HistorySidebar 
-            session={session}
-            historyLoading={historyLoading}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            onDelete={(id) => deleteMutation.mutate(id)}
-          />
+            <LogTerminal 
+              status={status} 
+              logs={logs} 
+              streamError={streamError} 
+            />
+          </div>
+
+          {/* History view - activeMobileTab === "history" */}
+          <div className={activeMobileTab === "history" ? "block" : "hidden lg:block"}>
+            <HistorySidebar 
+              session={session}
+              historyLoading={historyLoading}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              onDelete={(id) => deleteMutation.mutate(id)}
+            />
+          </div>
         </div>
 
-        {/* Right Column: Coordinated Panel Analysis / Reports */}
-        <div className="lg:col-span-8">
+        {/* Right Column: Coordinated Panel Analysis / Reports - visible if on report tab on mobile */}
+        <div className={`lg:col-span-8 ${activeMobileTab === "report" ? "block" : "hidden lg:block"}`}>
           <ReportView report={displayReport} />
         </div>
       </div>
     </div>
   );
+
 }

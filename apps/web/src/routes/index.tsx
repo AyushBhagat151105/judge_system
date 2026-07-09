@@ -25,14 +25,14 @@ function HomeComponent() {
             Get instant, brutally honest evaluations of your business concept from our coordinated AI Analyst panel. We check tech feasibility, market viability, and risk parameters.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link to="/dashboard">
-              <button className="bg-black text-white dark:bg-white dark:text-black hover:bg-neo-pink dark:hover:bg-neo-pink hover:text-black font-black text-lg px-6 py-3 border-2 border-black shadow-neobrutalist hover-neobrutalist cursor-pointer flex items-center gap-2 rounded-none">
+            <Link to="/dashboard" className="w-full sm:w-auto">
+              <button className="w-full bg-black text-white dark:bg-white dark:text-black hover:bg-neo-pink dark:hover:bg-neo-pink hover:text-black font-black text-sm md:text-lg px-4 py-2.5 md:px-6 md:py-3 border-2 border-black shadow-neobrutalist hover-neobrutalist cursor-pointer flex items-center justify-center gap-2 rounded-none">
                 Start Free Evaluation
                 <ArrowRight className="size-5" />
               </button>
             </Link>
-            <a href="#features">
-              <button className="bg-white text-black dark:bg-zinc-900 dark:text-white font-black text-lg px-6 py-3 border-neobrutalist shadow-neobrutalist hover-neobrutalist cursor-pointer rounded-none">
+            <a href="#features" className="w-full sm:w-auto">
+              <button className="w-full bg-white text-black dark:bg-zinc-900 dark:text-white font-black text-sm md:text-lg px-4 py-2.5 md:px-6 md:py-3 border-neobrutalist shadow-neobrutalist hover-neobrutalist cursor-pointer rounded-none">
                 How It Works
               </button>
             </a>

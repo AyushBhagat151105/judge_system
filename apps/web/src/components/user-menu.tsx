@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { useEvaluationStore } from "@/lib/use-evaluation-store";
 
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
@@ -56,6 +57,9 @@ export default function UserMenu() {
               authClient.signOut({
                 fetchOptions: {
                   onSuccess: () => {
+                    const store = useEvaluationStore.getState();
+                    store.setSelectedEvaluation(null);
+                    store.setHistory([]);
                     navigate({
                       to: "/",
                     });

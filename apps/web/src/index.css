@@ -180,3 +180,12 @@
   background-color: #A78BFA !important;
   color: black !important;
 }
+
+/* Hide scrollbars while preserving scrolling */
+.scrollbar-none {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;  /* Chrome, Safari, Opera */
+}

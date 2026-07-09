@@ -101,19 +101,27 @@ export function useEvaluationStream() {
       });
 
       if (!response.ok) {
+        let errorMessage = `Server returned status ${response.status}`;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const errObj = await response.json();
+            errorMessage = errObj?.message || errorMessage;
+          } catch {}
+        } else {
+          try {
+            const errText = await response.text();
+            if (errText) errorMessage = errText;
+          } catch {}
+        }
+
         if (response.status === 402 || response.status === 403) {
           setPaywallReached(true);
           setStatus("idle");
-          try {
-            const errObj = await response.json();
-            toast.error(errObj?.message || "Free evaluation limit reached. Please sign in for unlimited evaluations.");
-          } catch {
-            toast.error("Free evaluation limit reached. Please sign in for unlimited evaluations.");
-          }
+          toast.error(errorMessage);
           return;
         }
-        const errText = await response.text();
-        throw new Error(errText || `Server returned status ${response.status}`);
+        throw new Error(errorMessage);
       }
 
       const reader = response.body?.getReader();
