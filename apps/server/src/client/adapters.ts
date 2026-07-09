@@ -2,7 +2,7 @@ import { env } from "@judge_system/env/server";
 import { OpenAIChatCompletionsTextAdapter } from "@tanstack/ai-openai";
 
 export class NvidiaChatCompletionsTextAdapter extends OpenAIChatCompletionsTextAdapter<any> {
-    constructor(apiKey: string, model: string = "z-ai/glm-5.2") {
+    constructor(apiKey: string, model: string = "meta/llama-3.1-70b-instruct") {
         super({
             apiKey,
             baseURL: "https://integrate.api.nvidia.com/v1"
@@ -19,7 +19,6 @@ export class NvidiaChatCompletionsTextAdapter extends OpenAIChatCompletionsTextA
     }
 }
 
-export const adapter_glm = new NvidiaChatCompletionsTextAdapter(env.JUDGE_SYSTEM_API_KEY);
 export const judgeModelAdapter = new NvidiaChatCompletionsTextAdapter(env.JUDGE_SYSTEM_API_KEY, "meta/llama-3.1-70b-instruct");
 export const techFeasibilityAdapter = new NvidiaChatCompletionsTextAdapter(env.JUDGE_SYSTEM_API_KEY, "mistralai/codestral-22b-instruct-v0.1");
 export const marketViabilityAdapter = new NvidiaChatCompletionsTextAdapter(env.JUDGE_SYSTEM_API_KEY, "writer/palmyra-fin-70b-32k");

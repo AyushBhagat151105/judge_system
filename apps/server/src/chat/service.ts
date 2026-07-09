@@ -14,10 +14,9 @@ process.on("unhandledRejection", (reason: any) => {
     logger.error(`[Process] Unhandled Rejection: ${reason?.message || reason}`, { stack: reason?.stack });
 });
 
-export async function* createChatService(messages: any[], userId?: string | null, clientIp?: string) {
+export async function createChatService(messages: any[], userId?: string | null, clientIp?: string): Promise<AsyncIterable<any>> {
     logger.info(`[Lead Judge] Initializing coordinator with ${messages.length} messages`);
     
-    // Normalize messages to be robust against strings and legacy/simplified formats
     const normalizedMessages = messages.map((msg) => {
         if (typeof msg === "string") {
             return {
@@ -67,34 +66,54 @@ export async function* createChatService(messages: any[], userId?: string | null
     });
 
     let completedObject: any = null;
-    for await (const chunk of stream) {
-        if (chunk.type === EventType.CUSTOM && chunk.name === 'structured-output.complete') {
-            completedObject = chunk.value.object;
-        }
-        if (chunk.type === EventType.TEXT_MESSAGE_CONTENT) {
-            const { content, ...rest } = chunk as any;
-            yield rest;
-        } else {
-            yield chunk;
-        }
-    }
+    const iterator = stream[Symbol.asyncIterator]();
 
-    if (completedObject) {
-        try {
-            logger.info(`[Lead Judge] Saving completed evaluation report to database...`);
-            await prisma.evaluation.create({
-                data: {
-                    userId: userId || null,
-                    ipAddress: clientIp || null,
-                    prompt,
-                    report: completedObject
+    return {
+        [Symbol.asyncIterator]() {
+            return {
+                async next() {
+                    const { value, done } = await iterator.next();
+                    if (done) {
+                        if (completedObject) {
+                            try {
+                                logger.info(`[Lead Judge] Saving completed evaluation report to database...`);
+                                await prisma.$transaction([
+                                    prisma.evaluation.create({
+                                        data: {
+                                            userId: userId || null,
+                                            ipAddress: clientIp || null,
+                                            prompt,
+                                            report: completedObject
+                                        }
+                                    }),
+                                    ...(userId ? [
+                                        prisma.user.update({
+                                            where: { id: userId },
+                                            data: { evaluationCount: { increment: 1 } }
+                                        })
+                                    ] : [])
+                                ]);
+                                logger.info(`[Lead Judge] Report saved successfully.`);
+                            } catch (dbError: any) {
+                                logger.error(`[Lead Judge] Failed to save report to database: ${dbError.message}`, { stack: dbError.stack });
+                            }
+                        }
+                        logger.info("[Lead Judge] Stream completed successfully.");
+                        return { value: undefined, done: true };
+                    }
+
+                    if (value.type === EventType.CUSTOM && value.name === 'structured-output.complete') {
+                        completedObject = value.value.object;
+                    }
+
+                    if (value.type === EventType.TEXT_MESSAGE_CONTENT) {
+                        const { content, ...rest } = value as any;
+                        return { value: rest, done: false };
+                    }
+
+                    return { value, done: false };
                 }
-            });
-            logger.info(`[Lead Judge] Report saved successfully.`);
-        } catch (dbError: any) {
-            logger.error(`[Lead Judge] Failed to save report to database: ${dbError.message}`, { stack: dbError.stack });
+            };
         }
-    }
-
-    logger.info("[Lead Judge] Stream completed successfully.");
+    };
 }

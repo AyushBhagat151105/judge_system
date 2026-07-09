@@ -27,6 +27,15 @@ export const handleChat = asyncHandler(async (req: Request, res: Response, next:
     if (anonymousCount >= 1) {
       throw new ApiError(403, "Free limit reached. Please log in with Google to continue.");
     }
+  } else {
+    // Enforce 5 lifetime evaluations for registered users
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    });
+
+    if (user && user.evaluationCount >= 5) {
+      throw new ApiError(403, "Lifetime limit of 5 evaluations reached. Please upgrade to a premium plan to continue.");
+    }
   }
 
   const { messages } = req.body;
