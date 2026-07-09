@@ -41,6 +41,9 @@ jobs:
           tags: ${{ env.IMAGE_NAME_WEB }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VITE_SERVER_URL=https://judge-api.ayushbhagat.com
+
 
   build-server:
     runs-on: ubuntu-latest

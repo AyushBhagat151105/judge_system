@@ -23,6 +23,10 @@ COPY .env* ./
 # Run database schema generation using mock DB URL
 RUN DATABASE_URL=postgresql://mock:mock@localhost:5432/mock bunx prisma generate --schema packages/db/prisma/schema
 
+# Declare build-time environment variables
+ARG VITE_SERVER_URL
+ENV VITE_SERVER_URL=$VITE_SERVER_URL
+
 # Build web application
 RUN bun run build --filter=web
 
