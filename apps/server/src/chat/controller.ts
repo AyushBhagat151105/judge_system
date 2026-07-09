@@ -40,6 +40,32 @@ export const handleChat = asyncHandler(async (req: Request, res: Response, next:
 
   const { messages } = req.body;
 
+  const lastMsg = messages[messages.length - 1];
+  const promptText = typeof lastMsg === "string" 
+    ? lastMsg 
+    : (lastMsg?.content || lastMsg?.parts?.[0]?.content || "");
+
+  if (!promptText || promptText.trim().length < 15) {
+    throw new ApiError(400, "Please provide a detailed startup description of at least 15 characters.");
+  }
+
+  const injectionPatterns = [
+    /ignore\s+(?:previous|all|these|the)\s+(?:instructions|directives|rules|guidelines|prompts)/i,
+    /bypass\s+(?:security|rules|filters|limitations)/i,
+    /jailbreak/i,
+    /you\s+must\s+now\s+act\s+as/i,
+    /forget\s+about\s+(?:the\s+)?guidelines/i,
+    /do\s+not\s+follow\s+any\s+instructions/i,
+    /new\s+instructions\s*:/i,
+    /assistant\s+(?:must|should)\s+ignore/i,
+    /override\s+system/i,
+    /act\s+as\s+a\s+chatbot/i
+  ];
+
+  if (injectionPatterns.some(pattern => pattern.test(promptText))) {
+    throw new ApiError(400, "Security Alert: Potential prompt injection or system override attempt detected. Please describe your startup concept normally.");
+  }
+
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache",

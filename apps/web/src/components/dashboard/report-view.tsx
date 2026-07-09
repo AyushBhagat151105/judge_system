@@ -82,7 +82,7 @@ export function ReportView({ report }: ReportViewProps) {
       </div>
 
       {/* Tab Navigation Menu */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-row overflow-x-auto gap-2 pb-2 scrollbar-none snap-x snap-mandatory flex-nowrap -mx-4 px-4 md:mx-0 md:px-0">
         {[
           { id: "lead", label: "👑 Lead Judge & SWOT", color: "bg-neo-yellow" },
           { id: "tech", label: "💻 Technical Feasibility", color: "bg-neo-cyan" },
@@ -92,7 +92,7 @@ export function ReportView({ report }: ReportViewProps) {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as TabType)}
-            className={`border-neobrutalist px-4 py-2 text-xs font-black uppercase cursor-pointer select-none transition-all ${
+            className={`border-neobrutalist px-4 py-2 text-xs font-black uppercase cursor-pointer select-none transition-all whitespace-nowrap snap-align-start ${
               activeTab === tab.id
                 ? `${tab.color} text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[2px] translate-y-[2px]`
                 : "bg-white dark:bg-zinc-800 text-black dark:text-white hover:bg-amber-100 dark:hover:bg-zinc-700"
