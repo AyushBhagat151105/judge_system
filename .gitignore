@@ -24,6 +24,7 @@ skills-lock.json
 *.swo
 *~
 .DS_Store
+hostinger_deployment_guide.md
 
 # Logs
 logs

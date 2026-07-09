@@ -305,10 +305,38 @@ The system includes AI-powered evaluation using:
 - **TanStack AI** - LLM orchestration
 - **Tavily** - Web search for context
 - **Custom Tools** - Defined in `apps/server/src/tools/`
+- **NVIDIA NIM** - Hosted LLM inference via NVIDIA's API
+
+### AI Models Used
+
+The system uses multiple specialized models via NVIDIA's NIM (NVIDIA Inference Microservices) platform:
+
+| Adapter | Model | Purpose |
+|---------|-------|---------|
+| `judgeModelAdapter` | `meta/llama-3.1-70b-instruct` | Primary judging/evaluation model |
+| `techFeasibilityAdapter` | `mistralai/codestral-22b-instruct-v0.1` | Technical feasibility analysis |
+| `marketViabilityAdapter` | `writer/palmyra-fin-70b-32k` | Market viability & financial analysis |
+| `riskAssessmentAdapter` | `nvidia/llama-3.1-nemotron-51b-instruct` | Risk assessment & safety evaluation |
+
+All models are accessed through the **NVIDIA NIM API** at `https://integrate.api.nvidia.com/v1` using OpenAI-compatible endpoints.
+
+### Getting NVIDIA API Key
+
+1. Go to [NVIDIA Build Platform](https://build.nvidia.com/settings/api-keys)
+2. Sign in with your NVIDIA account (or create one)
+3. Generate a new API key
+4. Copy the key and add it to your server `.env` as `JUDGE_SYSTEM_API_KEY`
+
+```bash
+# apps/server/.env
+JUDGE_SYSTEM_API_KEY="nvapi-your-nvidia-api-key-here"
+```
 
 ### Configuration
 
 Requires `TAVILY_API_KEY` and `JUDGE_SYSTEM_API_KEY` in server environment.
+
+The adapters are defined in `apps/server/src/client/adapters.ts` and use a custom `NvidiaChatCompletionsTextAdapter` that extends TanStack AI's OpenAI adapter to work with NVIDIA's API format.
 
 ---
 

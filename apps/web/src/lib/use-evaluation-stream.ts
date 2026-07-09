@@ -104,7 +104,12 @@ export function useEvaluationStream() {
         if (response.status === 402 || response.status === 403) {
           setPaywallReached(true);
           setStatus("idle");
-          toast.error("Free evaluation limit reached. Please sign in for unlimited evaluations.");
+          try {
+            const errObj = await response.json();
+            toast.error(errObj?.message || "Free evaluation limit reached. Please sign in for unlimited evaluations.");
+          } catch {
+            toast.error("Free evaluation limit reached. Please sign in for unlimited evaluations.");
+          }
           return;
         }
         const errText = await response.text();
@@ -150,6 +155,7 @@ export function useEvaluationStream() {
               setCurrentReport(finalObject);
               setStatus("completed");
               setLogs((prev) => [...prev, "[Lead Judge] Synthesis complete.", "[Panel] Evaluation successfully saved to history."]);
+              toast.success("Evaluation complete! Your report is ready.");
               return;
             }
 
