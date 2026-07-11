@@ -8,6 +8,13 @@ import globalErrorHandler from "./lib/errorHandler";
 
 const app = express();
 
+const logo = `                                                                          
+                                                                          
+   ██ ▄▄ ▄▄ ▄▄▄▄   ▄▄▄▄ ▄▄▄▄▄     ▄█████ ▄▄ ▄▄  ▄▄▄▄ ▄▄▄▄▄▄ ▄▄▄▄▄ ▄▄   ▄▄ 
+   ██ ██ ██ ██▀██ ██ ▄▄ ██▄▄      ▀▀▀▄▄▄ ▀███▀ ███▄▄   ██   ██▄▄  ██▀▄▀██ 
+████▀ ▀███▀ ████▀ ▀███▀ ██▄▄▄     █████▀   █   ▄▄██▀   ██   ██▄▄▄ ██   ██ 
+                                                                          `;
+
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
@@ -30,5 +37,7 @@ app.get("/", (_req, res) => {
 app.use(globalErrorHandler);
 
 app.listen(3000, () => {
+  console.log(logo);
+  
   console.log("Server is running on http://localhost:3000");
 });
